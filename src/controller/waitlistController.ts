@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { db } from "../apps/waitlist";
+import { db } from "../server";
 import { waitlist } from "../../drizzle/schema";
 import { isValidEmail } from "../utils/index";
 import { eq } from "drizzle-orm";

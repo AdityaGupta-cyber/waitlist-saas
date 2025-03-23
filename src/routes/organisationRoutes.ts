@@ -1,6 +1,6 @@
 import { createOrganisation, deleteOrganisationWithId, getAllOrganisations, updateOrganisationWithId } from "../controller/organisationController";
 import { RouteControllers } from "../types/server";
-
+import { jwtMiddleware } from "../middleware/jwtMiddleware";
 
 
 
@@ -8,7 +8,8 @@ export const organisationRoutes: RouteControllers[] = [
     {
         method: "get",
         routePattern: "",
-        controller: getAllOrganisations
+        controller: getAllOrganisations,
+        middleware: [jwtMiddleware]
     },
     {
         method: "post",

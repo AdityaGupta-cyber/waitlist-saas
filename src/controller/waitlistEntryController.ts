@@ -1,4 +1,4 @@
-import { db } from "../apps/waitlistEntries";
+import { db } from "../server";
 import { user, waitlist, waitlistEntries } from "../../drizzle/schema";
 import { Request, Response } from "express";
 import { and, eq, or } from "drizzle-orm";

@@ -13,7 +13,7 @@ export const initializeDB = async () => {
             user: "postgres",
             password: "root",
             database: "waitlist",
-            port: 5433
+            port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 5433
         });
         await client.connect();
         console.log("Database connection established");

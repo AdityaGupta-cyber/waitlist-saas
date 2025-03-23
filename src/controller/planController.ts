@@ -1,5 +1,5 @@
 import { plan } from "../../drizzle/schema";
-import { db } from "../apps/plan";
+import { db } from "../server";
 import { Request, Response } from "express";
 import { eq } from "drizzle-orm";
 
