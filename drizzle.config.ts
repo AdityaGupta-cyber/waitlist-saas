@@ -6,6 +6,6 @@ export default defineConfig({
   schema: "./drizzle/schema.ts",
   out: "./drizzle/migrations",
   dbCredentials: {
-    url: "postgresql://postgres:root@localhost:5433/waitlist?schema=public",
+    url: "postgresql://postgres:root@localhost:5455/waitlist?schema=public",
   },
 });

@@ -1,4 +1,4 @@
-import { db } from "../apps/payment";
+import { db } from "../server";
 import { organisation, payment } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { Request, Response } from "express";

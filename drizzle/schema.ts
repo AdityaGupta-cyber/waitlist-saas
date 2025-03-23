@@ -11,14 +11,14 @@ export const eventTypeEnum = pgEnum("event_type", ["joined", "referred", "approv
 export const billingCucleEnum = pgEnum("billing_cycle", ["monthly", "yearly"]);
 
 
-
+// implement auth
 
 export const organisation  = pgTable("organisation", {
     id: text("id").primaryKey().default(sql`'orga_' || gen_random_uuid()`),
     name: varchar("name", { length: 255 }).notNull(),
     email: varchar("email", { length: 255 }).notNull().unique(),
-    password: varchar("password", { length: 255 }).notNull(),
-    phone: varchar("phone", { length: 255 }).notNull(),
+    password: varchar("password", { length: 255 }),
+    phone: varchar("phone", { length: 255 }),
     website: varchar("website", { length: 255 }),
     logoUrl: varchar("logo_url", { length: 255 }),
     planId: text("plan_id").references(() => plan.id),
@@ -73,6 +73,7 @@ export const waitlist = pgTable("waitlist", {
     allowReferrals: boolean("allow_referrals").default(true),
     referralBonusPosition: integer("referral_bonus_position").default(1),
     isActive: boolean("is_active").default(true),
+    metadata: jsonb("metadata"),
 },(table)=>[
     index("waitlist_organisation_id_idx").on(table.organisationId),
     index("waitlist_slug_idx").on(table.slug),

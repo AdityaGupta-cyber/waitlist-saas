@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { db } from "../apps/user";
+import { db } from "../server";
 import { user } from "../../drizzle/schema";
 import { isValidEmail } from "../utils/index";
 import { and, eq, or } from "drizzle-orm";
