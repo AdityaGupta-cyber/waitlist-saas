@@ -4,7 +4,7 @@ import { Request, Response } from "express";
 import { and, eq, or } from "drizzle-orm";
 
 
-export const getAllWaitlistEntries  = async (req: Request, res: Response) => {
+export const getAllWaitlistEntries = async (req: Request, res: Response) => {
     const entries = await (await db).select().from(waitlistEntries)
     return res.status(200).json(entries)
 }
@@ -44,25 +44,18 @@ export const updateWaitlistEntryUsingId = async (req: Request, res: Response) =>
     const { id } = req.params;
     const { userId, waitlistId, position, originalPosition, referredBy, status, statusUpdatedAt, joinedAt, isNotified, metadata } = req.body;
 
+    try {
+        const ifWaitlistEntry = await (await db).select().from(waitlistEntries).where(and(eq(waitlistEntries.waitlistId, waitlistId), eq(waitlistEntries.userId,userId)));
 
-  try {
-    const ifWaitlistEntry = await (await db).select().from(waitlistEntries).where(and(eq(waitlistEntries.waitlistId, waitlistId), eq(waitlistEntries.userId,userId)));
-
-
-    if(ifWaitlistEntry){
-    const entry = await (await db).update(waitlistEntries).set({ userId , waitlistId, position, originalPosition, referredBy, status, statusUpdatedAt, joinedAt, isNotified, metadata }).where(eq(waitlistEntries.id, id)).returning();
-    return res.status(200).json(entry);
+        if(ifWaitlistEntry.length > 0){
+            const entry = await (await db).update(waitlistEntries).set({ userId, waitlistId, position, originalPosition, referredBy, status, statusUpdatedAt, joinedAt, isNotified, metadata }).where(eq(waitlistEntries.id, id)).returning();
+            return res.status(200).json(entry);
+        }
+        return res.status(400).json({message:`Cannot find wailisting entry for the user and the waitlisting!`});
+    } catch (error) {
+        return res.status(400).json({message:`Error updating the waitlist entry!`, error: error});
     }
-    return res.status(400).json({message:`Cannot find wailisting entry for the user and the waitlisting!`});
-
-  } catch (error) {
-      return res.status(400).json({message:`Error updating the waitlist entry!`, error: error});
-    
-  }
-
-    
-}   
-
+}
 
 export const deleteWaitlistEntryUsingId = async (req: Request, res: Response) => {
     const { id } = req.params;

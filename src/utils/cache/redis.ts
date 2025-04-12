@@ -1,7 +1,7 @@
 import {createClient} from "redis";
 
 const redisClient = createClient({
-    url: "redis://127.0.0.1:6000",
+    url: process.env.REDIS_URL || "redis://127.0.0.1:6379",
 });
 
 let isConnected = false;
@@ -24,6 +24,10 @@ export const connectToRedis = async () => {
 }
 
 export const getRedisClient = () => {
+    if (!isConnected) {
+        console.log("Warning: Redis not connected, trying to connect...");
+        connectToRedis().catch(err => console.log("Failed to connect to Redis:", err));
+    }
     return redisClient;
 }
 

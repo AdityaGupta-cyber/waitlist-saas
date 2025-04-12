@@ -15,7 +15,7 @@ export const billingCucleEnum = pgEnum("billing_cycle", ["monthly", "yearly"]);
 
 export const organisation  = pgTable("organisation", {
     id: text("id").primaryKey().default(sql`'orga_' || gen_random_uuid()`),
-    name: varchar("name", { length: 255 }).notNull(),
+    name: varchar("name", { length: 255 }),
     email: varchar("email", { length: 255 }).notNull().unique(),
     password: varchar("password", { length: 255 }),
     phone: varchar("phone", { length: 255 }),
@@ -137,3 +137,12 @@ export const socialProofEvent = pgTable("social_proof_event", {
     createdAt: timestamp("created_at").default(sql`now()`).notNull(),
     updatedAt: timestamp("updated_at").default(sql`now()`).notNull(),
 })
+
+
+export const schema = {
+    organisation,
+    project,
+    user,
+    waitlist,
+    waitlistEntries,
+}

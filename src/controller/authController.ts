@@ -49,3 +49,9 @@ export const login = async (req: Request, res: Response) => {
     const jwtToken = jwt.sign({data: cleanedOrg}, process.env.JWT_SECRET as string || "secret", {expiresIn: "1d"});
     res.status(200).json({token: jwtToken});
 }
+
+export const sendMagicLink = async (req: Request, res: Response) => {
+    const { email } = req.body;
+
+    res.status(200).json({ message: "Magic link sent" });
+}

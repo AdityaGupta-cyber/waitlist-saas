@@ -1,6 +1,4 @@
 import express, { Request, Response } from "express";
-import { RouteControllers } from "./types/server";
-import { globalMiddleware } from "./middleware/globalMiddleware";
 import { connectToRedis } from "./utils/cache/redis";
 import 'dotenv/config';
 
@@ -12,15 +10,25 @@ import { waitlistEntryRoutes } from './routes/waitlistEntryRoutes';
 import { planRoutes } from './routes/planRoutes';
 import { paymentRoutes } from './routes/paymentRoutes';
 import { authRoutes } from './routes/authRoutes';
+
 // Import DB initialization
 import { initializeDB } from "./model/libs/db";
-
+import supertokens from "supertokens-node";
+import cors from "cors";
+import { middleware } from "supertokens-node/framework/express";
+import { errorHandler } from "supertokens-node/framework/express";
+import { organisation, user } from "../drizzle/schema";
+import { eq } from "drizzle-orm";
+import { initSuperTokens } from "./libs/auth/init";
+import jwt from "jsonwebtoken"
+import { verifySession } from "supertokens-node/recipe/session/framework/express";
+import { SessionRequest } from "supertokens-node/framework/express";
 // Initialize DB once for all services
 export const db = initializeDB();
 
 // Define service configurations
 const services = [
-  { routes: authRoutes, prefix: "/auth", name: "auth-service"},
+  { routes: authRoutes, prefix: "/auth", name: "auth-service" },
   { routes: waitlistRoutes, prefix: "/waitlist", name: "waitlist-service" },
   { routes: organisationRoutes, prefix: "/org", name: "organisation-service" },
   { routes: userRoutes, prefix: "/user", name: "user-service" },
@@ -49,7 +57,23 @@ export function startUnifiedServer(port: number = 8080) {
   */
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
-  app.use(globalMiddleware);
+
+  // Initialize supertokens FIRST
+  initSuperTokens();
+  // THEN configure CORS with the headers
+  app.use(
+    cors({
+      origin: "http://localhost:5173",
+      allowedHeaders: ["content-type", ...supertokens.getAllCORSHeaders()],
+      methods: ["GET", "PUT", "POST", "DELETE", "OPTIONS"],
+      credentials: true,
+    })
+  );
+
+  // Add SuperTokens middleware
+  app.use(middleware());
+  app.use(errorHandler());
+  // app.use(globalMiddleware);
 
   /*
   ---- register all service routes ----
@@ -76,6 +100,22 @@ export function startUnifiedServer(port: number = 8080) {
     res.send('All services are running!');
   });
 
+  app.get("/auth/token", verifySession(), async (req: SessionRequest, res: Response): Promise<void> => {
+    const organisationId = req.session!.getUserId();
+    const checkUser = await (await db).select().from(organisation).where(eq(organisation.id, organisationId));
+    console.log(checkUser);
+    if (!checkUser.length) {
+        res.status(401).json({ message: "Unauthorized" });
+        return;
+    }
+    
+    const signedToken = jwt.sign({
+      id: checkUser[0].id,
+      name:checkUser[0].name,
+      email: checkUser[0].email
+    } as object, process.env.JWT_SECRET as string);
+    res.json({ token: signedToken });
+  });
   app.listen(port, () => {
     console.log(`Unified server listening on port ${port}`);
     services.forEach(service => {
